@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180203170105) do
+ActiveRecord::Schema.define(version: 20180203175631) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -51,14 +51,14 @@ ActiveRecord::Schema.define(version: 20180203170105) do
     t.integer  "card_id"
     t.integer  "student_id"
     t.integer  "due"
-    t.integer  "queue"
-    t.boolean  "lapsed"
+    t.integer  "queue",         default: 0
+    t.boolean  "lapsed",        default: false
     t.integer  "learning_step"
-    t.integer  "reps"
-    t.integer  "interval"
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
-    t.decimal  "ef"
+    t.integer  "reps",          default: 0
+    t.integer  "interval",      default: 0
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
+    t.decimal  "ef",            default: "2.5"
   end
 
   create_table "students", force: :cascade do |t|
