@@ -51,7 +51,28 @@ class Schedule < ApplicationRecord
     end
   end
 
+  # Cards in learning phase have 3 options: { 0: again, 1: ok, 2: easy}
   def answer_learn_card(grade)
+    if grade == 3 # Instantly graduate
+      reschedule_as_review(true)
+    elsif grade == 2 && learning_step >= grad_steps.count # All learning steps complete, graduate
+      reschedule_as_review(false)
+    else
+    # No graduation yet
+      if grade == 2 # 1 step closer to grad
+        self.learning_step += 1
+      else # Fail, back to step 1
+        # possibly adjust interval if card is lapsed
+        self.learning_step = 1
+      end
+      # todo reschedule for today
+      delay = (grad_steps[learning_step-1]*60)*Random.rand(1.00,1.25)
+      self.due= Time.now.to_i + delay
+    end
+    # code here
+  end
+
+  def reschedule_as_review(early)
     # code here
   end
 
