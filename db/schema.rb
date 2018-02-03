@@ -16,53 +16,53 @@ ActiveRecord::Schema.define(version: 20180203160425) do
   enable_extension "plpgsql"
 
   create_table "cards", force: :cascade do |t|
-    t.text     "front"
-    t.text     "back"
-    t.integer  "deck_id"
+    t.text "front"
+    t.text "back"
+    t.integer "deck_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
   create_table "decks", force: :cascade do |t|
-    t.string   "name"
-    t.text     "description"
-    t.integer  "klass_id"
-    t.datetime "created_at",  null: false
-    t.datetime "updated_at",  null: false
+    t.string "name"
+    t.text "description"
+    t.integer "klass_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "klasses", force: :cascade do |t|
-    t.string   "name"
-    t.text     "description"
-    t.datetime "created_at",  null: false
-    t.datetime "updated_at",  null: false
+    t.string "name"
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "konfigs", force: :cascade do |t|
-    t.integer  "deck_id"
-    t.integer  "student_id"
-    t.string   "grad_steps"
-    t.integer  "starting_step"
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
+    t.integer "deck_id"
+    t.integer "student_id"
+    t.string "grad_steps", default: "1 10"
+    t.integer "starting_step", default: 1
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "schedules", force: :cascade do |t|
-    t.integer  "card_id"
-    t.integer  "student_id"
-    t.integer  "due"
-    t.integer  "queue"
-    t.boolean  "lapsed"
-    t.integer  "learning_step"
-    t.integer  "reps"
-    t.integer  "interval"
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
+    t.integer "card_id"
+    t.integer "student_id"
+    t.integer "due"
+    t.integer "queue"
+    t.boolean "lapsed"
+    t.integer "learning_step"
+    t.integer "reps"
+    t.integer "interval"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "students", force: :cascade do |t|
-    t.string   "name"
-    t.integer  "klass_id"
+    t.string "name"
+    t.integer "klass_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

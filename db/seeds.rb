@@ -6,6 +6,12 @@
 #   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
 #   Character.create(name: 'Luke', movie: movies.first)
 
+Klass.destroy_all
+Student.destroy_all
+Deck.destroy_all
+Card.destroy_all
+Konfig.destroy_all
+
 c = Klass.create(name:"Tizedik bé", description:"Best in its class.")
 c.students.create([
                     {name: "Aladar"},
@@ -24,3 +30,5 @@ d.cards.create([
     {front: "4", back: "cuatro"},
     {front: "5", back: "cinco"},
                ])
+
+Student.all.each {|s| s.konfigs.create(deck:d, grad_steps:"1 10", starting_step:1)}
