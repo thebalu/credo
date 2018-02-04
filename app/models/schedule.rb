@@ -36,15 +36,15 @@ class Schedule < ApplicationRecord
   # Called when any card gets answered. Calls the correct answer_*_card method after preparations
   def answer_card(grade)
     self.reps += 1
-    if queue == :unseen
+    if queue == "unseen"
       # Place unseen cards into learn queue and do the necessary setup
       self.queue = :learn
-      self.grad_steps = konfig[:starting_step]
+      self.learning_step = konfig[:starting_step]
     end
 
-    if queue == :learn
+    if queue == "learn"
       answer_learn_card(grade)
-    elsif queue == :review
+    elsif queue == "review"
       answer_review_card(grade)
     else
       raise "Unknown queue #{queue}"
@@ -58,25 +58,38 @@ class Schedule < ApplicationRecord
     elsif grade == 2 && learning_step >= grad_steps.count # All learning steps complete, graduate
       reschedule_as_review(false)
     else
-    # No graduation yet
+      # No graduation yet
       if grade == 2 # 1 step closer to grad
         self.learning_step += 1
       else # Fail, back to step 1
         # possibly adjust interval if card is lapsed
         self.learning_step = 1
       end
-      # todo reschedule for today
-      delay = (grad_steps[learning_step-1]*60)*Random.rand(1.00,1.25)
-      self.due= Time.now.to_i + delay
+      delay = (grad_steps[learning_step - 1] * 60) #*(Random.rand(0.25)+1) Add this fuzz later
+      self.due = Time.now.to_i + delay.round
+      delay.round
     end
-    # code here
+
   end
 
   def reschedule_as_review(early)
-    # code here
+
+    if lapsed
+      # todo Set interval
+      puts "lapsed card"
+    else
+      # Reschedule a new card that's graduated for the first time.
+      self.interval = early ? 4 : 1 # Hardcoded for now
+    end
+    self.queue = :review
+    self.due = (Time.now+interval.day).to_i
   end
 
   def answer_review_card(grade)
     # code here
+    puts "ans rev"
+
   end
 end
+
+# a=Schedule.create(card:Card.take, student:Student.take)
