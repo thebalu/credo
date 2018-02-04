@@ -61,9 +61,11 @@ class Schedule < ApplicationRecord
       # No graduation yet
       if grade == 2 # 1 step closer to grad
         self.learning_step += 1
-      else # Fail, back to step 1
+      elsif grade == 1 # Fail, back to step 1
         # possibly adjust interval if card is lapsed
         self.learning_step = 1
+      else
+        raise "Learning cards must be answered on a scale of 1-3"
       end
       delay = (grad_steps[learning_step - 1] * 60) #*(Random.rand(0.25)+1) Add this fuzz later
       self.due = Time.now.to_i + delay.round
@@ -73,7 +75,7 @@ class Schedule < ApplicationRecord
   end
 
   def reschedule_as_review(early)
-
+    self.learning_step = nil
     if lapsed
       # todo Set interval
       puts "lapsed card"
@@ -82,13 +84,30 @@ class Schedule < ApplicationRecord
       self.interval = early ? 4 : 1 # Hardcoded for now
     end
     self.queue = :review
-    self.due = (Time.now+interval.day).to_i
+    self.due = (Time.now + interval.day).to_i
   end
 
   def answer_review_card(grade)
-    # code here
-    puts "ans rev"
+    if grade == 1
+      reschedule_lapse
+    else
+      reschedule_rev(grade)
+    end
 
+  end
+
+  def reschedule_rev(grade)
+    # {2: hard, 3: ok, 4: easy}
+    # update interval, ef, due
+    # todo add bonus for delayed recall
+    old_interval = interval
+    self.interval = [1, (old_interval * ef).round].max
+    self.ef = [1.3, ef + [-0.15, 0.00, 0.15][grade - 2]].max
+    self.due = (Time.now + interval.day).to_i
+  end
+
+  def reschedule_lapse
+    # code here
   end
 end
 
