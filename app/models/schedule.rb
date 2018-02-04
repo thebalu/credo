@@ -83,7 +83,7 @@ class Schedule < ApplicationRecord
       # Reschedule a new card that's graduated for the first time.
       self.interval = early ? 4 : 1 # Hardcoded for now
     end
-    self.queue = :review
+    self.queue = "review"
     self.due = (Time.now + interval.day).to_i
   end
 
@@ -99,15 +99,37 @@ class Schedule < ApplicationRecord
   def reschedule_rev(grade)
     # {2: hard, 3: ok, 4: easy}
     # update interval, ef, due
-    # todo add bonus for delayed recall
+
+    update_rev_interval(grade)
     old_interval = interval
     self.interval = [1, (old_interval * ef).round].max
     self.ef = [1.3, ef + [-0.15, 0.00, 0.15][grade - 2]].max
     self.due = (Time.now + interval.day).to_i
   end
 
+  def update_rev_interval(grade)
+
+    late = (Time.now.to_i - due.to_i)/86400 # how many days late the card was (rounded down)
+    case grade
+      when 2
+        self.interval = ((interval+late/4.0)*1.2).round
+      when 3
+        self.interval = ((interval+late/2.0)*ef).round
+      when 4
+        # possibly add easy bonus
+        self.interval = ((interval+late)*ef).round
+      else
+        raise "unknown grade"
+    end
+  end
+
   def reschedule_lapse
-    # code here
+    # update interval, ef, place in learning queue, set lapse, set due
+    self.interval = 1
+    self.ef = [1.3, ef - 0.2].max
+    self.queue = "learn"
+    self.lapse = true
+
   end
 end
 
