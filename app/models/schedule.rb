@@ -6,7 +6,6 @@ class Schedule < ApplicationRecord
   belongs_to :student
 
   enum queue: [:unseen, :learn, :review] # Don't change order, only add to end
-  # attr_accessor :due, :ef,
 
   # Validations
   # #
@@ -78,8 +77,8 @@ class Schedule < ApplicationRecord
   def reschedule_as_review(early)
     self.learning_step = nil
     if lapsed
-      self.lapsed=false
-      self.interval=1
+      self.lapsed = false
+      self.interval = 1
     else
       # Reschedule a new card that's graduated for the first time.
       self.interval = early ? 4 : 1 # Hardcoded for now
@@ -103,16 +102,16 @@ class Schedule < ApplicationRecord
   end
 
   def update_rev_interval(grade)
-
-    late = [ (Time.now.to_i - due.to_i)/86400 , 0 ].max# how many days late the card was (rounded down)
+    # Always increase interval by at least a day. This is done to avoid issues with intervals of 1 and 2, with e.g. an EF < 1.5
+    late = [(Time.now.to_i - due.to_i) / 86400, 0].max # how many days late the card was (rounded down)
     case grade
       when 2
-        self.interval = ((interval+late/4.0)*1.2).round
+        self.interval = [((interval + late / 4.0) * 1.2).round, interval + 1].max
       when 3
-        self.interval = ((interval+late/2.0)*ef).round
+        self.interval = [((interval + late / 2.0) * ef).round, interval + 1].max
       when 4
         # possibly add easy bonus
-        self.interval = ((interval+late)*ef).round
+        self.interval = [((interval + late) * ef).round, interval + 1].max
       else
         raise "unknown grade"
     end
@@ -126,9 +125,7 @@ class Schedule < ApplicationRecord
     self.lapsed = true
 
     self.learning_step = konfig[:starting_step] # possibly add a different relearning starting step
-    self.due= (Time.now + grad_steps[learning_step-1].minutes)
-    puts "resc lapse"
-
+    self.due = (Time.now + grad_steps[learning_step - 1].minutes)
   end
 end
 
