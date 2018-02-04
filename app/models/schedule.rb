@@ -49,6 +49,7 @@ class Schedule < ApplicationRecord
     else
       raise "Unknown queue #{queue}"
     end
+    self.due - Time.now.to_i
   end
 
   # Cards in learning phase have 3 options: { 0: again, 1: ok, 2: easy}
@@ -77,8 +78,8 @@ class Schedule < ApplicationRecord
   def reschedule_as_review(early)
     self.learning_step = nil
     if lapsed
-      # todo Set interval
-      puts "lapsed card"
+      self.lapsed=false
+      self.interval=1
     else
       # Reschedule a new card that's graduated for the first time.
       self.interval = early ? 4 : 1 # Hardcoded for now
@@ -93,23 +94,17 @@ class Schedule < ApplicationRecord
     else
       reschedule_rev(grade)
     end
-
   end
 
-  def reschedule_rev(grade)
-    # {2: hard, 3: ok, 4: easy}
-    # update interval, ef, due
-
+  def reschedule_rev(grade) # {2: hard, 3: ok, 4: easy}
     update_rev_interval(grade)
-    old_interval = interval
-    self.interval = [1, (old_interval * ef).round].max
     self.ef = [1.3, ef + [-0.15, 0.00, 0.15][grade - 2]].max
     self.due = (Time.now + interval.day).to_i
   end
 
   def update_rev_interval(grade)
 
-    late = (Time.now.to_i - due.to_i)/86400 # how many days late the card was (rounded down)
+    late = [ (Time.now.to_i - due.to_i)/86400 , 0 ].max# how many days late the card was (rounded down)
     case grade
       when 2
         self.interval = ((interval+late/4.0)*1.2).round
@@ -128,7 +123,11 @@ class Schedule < ApplicationRecord
     self.interval = 1
     self.ef = [1.3, ef - 0.2].max
     self.queue = "learn"
-    self.lapse = true
+    self.lapsed = true
+
+    self.learning_step = konfig[:starting_step] # possibly add a different relearning starting step
+    self.due= (Time.now + grad_steps[learning_step-1].minutes)
+    puts "resc lapse"
 
   end
 end
