@@ -4,7 +4,14 @@ FactoryBot.define do
     d=FactoryBot.build :deck, klass: k
     association :card, deck: d
     association :student, klass: k
-    queue "unseen"
-    lapsed false
+    #
+    # transient do
+    #   grad_steps "1 10"
+    #   starting_step 1
+    # end
+
+    after(:create) do |schedule, evaluator|
+      create(:konfig, student: schedule.student, deck:schedule.card.deck)
+    end
   end
 end
