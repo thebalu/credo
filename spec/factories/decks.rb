@@ -1,7 +1,7 @@
 FactoryBot.define do
   factory :deck do
-    name "MyString"
-    description "MyText"
-    klass_id 1
+    sequence(:name) { |n| "Deck #{n}" }
+    description "This is a top deck."
+    klass
   end
 end

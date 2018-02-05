@@ -1,8 +1,10 @@
 FactoryBot.define do
   factory :konfig do
-    deck_id 1
-    student_id 1
-    grad_steps "MyString"
+    k=FactoryBot.build :klass
+    association :deck, klass: k
+    association :student, klass: k
+    grad_steps "1 10"
     starting_step 1
+
   end
 end

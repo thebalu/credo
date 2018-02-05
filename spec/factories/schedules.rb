@@ -1,12 +1,10 @@
 FactoryBot.define do
   factory :schedule do
-    card_id 1
-    student_id 1
-    due 1
-    queue 1
+    k=FactoryBot.build :klass
+    d=FactoryBot.build :deck, klass: k
+    association :card, deck: d
+    association :student, klass: k
+    queue "unseen"
     lapsed false
-    learning_step 1
-    reps 1
-    interval 1
   end
 end

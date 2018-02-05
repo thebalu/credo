@@ -11,7 +11,11 @@ class Schedule < ApplicationRecord
   # #
   validates :reps, presence: :true, numericality: [greater_than_or_equal_to: 0]
   validates :interval, presence: :true, numericality: [greater_than_or_equal_to: 0]
+  validate :same_klass_for_card_and_student
 
+  def same_klass_for_card_and_student
+    errors.add(:klass, "must be the same for card and student") unless card.deck.klass == student.klass
+  end
 
   # Simple definitions
   # #
@@ -130,3 +134,4 @@ class Schedule < ApplicationRecord
 end
 
 # a=Schedule.create(card:Card.take, student:Student.take)
+# TODO Testing model, writing tests, adding save to persist to db

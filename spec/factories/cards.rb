@@ -1,7 +1,7 @@
 FactoryBot.define do
   factory :card do
-    front "MyText"
-    back "MyText"
-    deck_id 1
+    front "Front of card"
+    back "Back of card"
+    deck
   end
 end
