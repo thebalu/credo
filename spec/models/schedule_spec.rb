@@ -37,11 +37,15 @@ RSpec.describe Schedule, type: :model do
       it "sets due to 1 minutes from now" do
         expect(@s.due).to eq (Time.now + 1.minutes).to_i
       end
-      it "sets learning step to 1 (from config)" do
-        conf = @s.konfig
-        expect(conf[:starting_step]).to eq 1
-        expect(@s.learning_step).to eq conf[:starting_step]
+      it "sets learning step to 1 based on config" do
+        expect(@s.learning_step).to eq 1
       end
+      it "sets learning step to 1, not starting_step" do
+        @d = FactoryBot.create :schedule, konfig_args:{grad_steps:'3 5 6 7', starting_step: 2}
+        @d.answer_card 1
+        expect(@d.learning_step).to eq 1
+      end
+
       it "sets reps to 1" do
         expect(@s.reps).to eq 1
       end
@@ -72,10 +76,16 @@ RSpec.describe Schedule, type: :model do
       it "sets due to 10 minutes from now" do
         expect(@s.due).to eq (Time.now + 10.minutes).to_i
       end
-      it "sets learning step to 2 (from config)" do
+      it "sets learning step to 2 (from config: starting_step)" do
         conf = @s.konfig
         expect(conf[:starting_step]).to eq 1
         expect(@s.learning_step).to eq 2
+      end
+
+      it "sets learning step based on config" do
+        @d = FactoryBot.create :schedule, konfig_args:{grad_steps:'3 5 6 7', starting_step: 2}
+        @d.answer_card 2
+        expect(@d.learning_step).to eq 3
       end
       it "sets reps to 1" do
         expect(@s.reps).to eq 1
@@ -133,6 +143,7 @@ RSpec.describe Schedule, type: :model do
       before(:each) do
         Timecop.freeze
         @s = FactoryBot.create :schedule, queue: :learn, reps: 4, due: (Time.now+3.minutes).to_i, learning_step: 2
+
         @s.answer_card 1
       end
       after(:each) do
@@ -141,14 +152,28 @@ RSpec.describe Schedule, type: :model do
 
       it "places it in learning queue" do
         expect(@s.queue).to eq "learn"
+
       end
-      it "sets due to 1 minutes from now" do
+      it "sets due according to config" do
+        @d = FactoryBot.create :schedule, queue: :learn, reps: 6, due: (Time.now-24.minutes).to_i, learning_step: 3, konfig_args:{grad_steps:'3 5 6 7', starting_step: 2}
+        @d.answer_card 1
+
         expect(@s.due).to eq (Time.now + 1.minutes).to_i
+        expect(@d.due).to eq (Time.now + 3.minutes).to_i
       end
-      it "sets learning step to 1 (from config)" do
+      it "sets learning step to 1" do
         conf = @s.konfig
         expect(conf[:starting_step]).to eq 1
-        expect(@s.learning_step).to eq conf[:starting_step]
+        expect(@s.learning_step).to eq 1
+
+      end
+      it "sets learning step to 1 with different config" do
+        @d = FactoryBot.create :schedule, queue: :learn, reps: 6, due: (Time.now-24.minutes).to_i, learning_step: 3, konfig_args:{grad_steps:'3 5 6 7', starting_step: 2}
+        @d.answer_card 1
+        confd = @d.konfig
+        expect(confd[:starting_step]).to eq 2
+        expect(@d.learning_step).to eq 1
+
       end
       it "increase reps" do
         expect(@s.reps).to eq 5
@@ -203,7 +228,9 @@ RSpec.describe Schedule, type: :model do
       before(:each) do
         Timecop.freeze
         @s = FactoryBot.create :schedule, queue: :learn, reps: 4, due: (Time.now+3.minutes).to_i, learning_step: 2
+        @d = FactoryBot.create :schedule, queue: :learn, reps: 6, due: (Time.now-24.minutes).to_i, learning_step: 4, konfig_args:{grad_steps:'3 5 6 7', starting_step: 2}
         @s.answer_card 2
+        @d.answer_card 2
       end
       after(:each) do
         Timecop.return
@@ -211,18 +238,23 @@ RSpec.describe Schedule, type: :model do
 
       it "places it in review queue" do
         expect(@s.queue).to eq "review"
+        expect(@d.queue).to eq "review"
       end
       it "sets due to 1 day from now" do
         expect(@s.due).to eq (Time.now + 1.day).to_i
+        expect(@d.due).to eq (Time.now + 1.day).to_i
       end
       it "sets learning step to nil" do
         expect(@s.learning_step).to eq nil
+        expect(@d.learning_step).to eq nil
       end
       it "increase reps" do
         expect(@s.reps).to eq 5
+        expect(@d.reps).to eq 7
       end
       it "interval is 1" do
         expect(@s.interval).to eq 1
+        expect(@d.interval).to eq 1
       end
       it "lapsed is false" do
         expect(@s.lapsed).to eq false
@@ -235,7 +267,7 @@ RSpec.describe Schedule, type: :model do
     context "with 3" do
       before(:each) do
         Timecop.freeze
-        @s = FactoryBot.create :schedule, queue: :learn, reps: 4, due: (Time.now+3.minutes).to_i, learning_step: 2
+        @s = FactoryBot.create :schedule, queue: :learn, reps: 4, due: (Time.now+3.minutes).to_i, learning_step: 1
         @s.answer_card 3
       end
       after(:each) do
@@ -264,6 +296,7 @@ RSpec.describe Schedule, type: :model do
         expect(@s.ef).to eq 2.5
       end
     end
+
 
   end
 end

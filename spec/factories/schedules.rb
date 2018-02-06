@@ -11,8 +11,8 @@ FactoryBot.define do
     end
 
     after(:create) do |schedule, evaluator|
-      default = {deck_id:schedule.card.deck_id, student_id:schedule.student_id}
-      ap evaluator.konfig_args
+      default = {deck:schedule.card.deck, student:schedule.student}
+      # ap evaluator.konfig_args
       opt=default.merge evaluator.konfig_args
       create(:konfig,  opt)
     end
