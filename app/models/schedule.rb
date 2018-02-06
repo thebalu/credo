@@ -9,6 +9,7 @@ class Schedule < ApplicationRecord
 
   # Validations
   # #
+  # todo conditional validations: eg. learning_step must be nil unless card is in learn queue
   validates :reps, presence: :true, numericality: [greater_than_or_equal_to: 0]
   validates :interval, presence: :true, numericality: [greater_than_or_equal_to: 0]
   validate :same_klass_for_card_and_student
