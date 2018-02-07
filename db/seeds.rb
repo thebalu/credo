@@ -13,13 +13,8 @@ Card.destroy_all
 Konfig.destroy_all
 
 c = Klass.create(name:"Tizedik bé", description:"Best in its class.")
-c.students.create([
-                    {name: "Aladar"},
-                    {name: "Bela"},
-                    {name: "Cili"},
-                    {name: "Dodus"},
-                    {name: "Emese"},
-                  ])
+aladar=c.students.create(name: "Aladar")
+bela=c.students.create(name: "Bela")
 
 d= c.decks.create( name: "TopDeck", description:"Unfair.")
 

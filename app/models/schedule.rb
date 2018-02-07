@@ -34,6 +34,13 @@ class Schedule < ApplicationRecord
     konfig[:grad_steps].split.map(&:to_i)
   end
 
+  # Scopes
+  # #
+  scope :due_review, -> {where("due <= ?", Time.now.end_of_day.to_i)}
+  scope :learning,   -> {where(queue: "learn")}
+  scope :unseen,     -> {where(queue: "unseen")}
+  scope :of_deck,    ->(deck) {Schedule.joins(:card).where(cards:{deck:deck})}
+
   # The big stuff
   # #
 
