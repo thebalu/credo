@@ -61,7 +61,7 @@ class Schedule < ApplicationRecord
     else
       raise "Unknown queue #{queue}"
     end
-    self.due - Time.now.to_i
+    save!
   end
 
   # Cards in learning phase have 3 options: { 0: again, 1: ok, 2: easy}
