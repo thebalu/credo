@@ -129,7 +129,7 @@ class Schedule < ApplicationRecord
     self.queue = "learn"
     self.lapsed = true
 
-    self.learning_step = konfig[:starting_step] # possibly add a different relearning starting step
+    self.learning_step = konfig[:lapse_starting_step] # possibly add a different relearning starting step
     self.due = (Time.now + grad_steps[learning_step - 1].minutes)
   end
 end

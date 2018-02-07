@@ -296,7 +296,145 @@ RSpec.describe Schedule, type: :model do
         expect(@s.ef).to eq 2.5
       end
     end
+  end
 
+  context "Answering a review card" do
+    context "with 1" do
+      before(:each) do
+        Timecop.freeze
+        @s = FactoryBot.create :schedule, queue: :review, reps: 7, due: (Time.now-3.minutes).to_i, ef:2.2, interval:5, konfig_args:{lapse_starting_step: 2, grad_steps:"3 5 7"}
+        @s.answer_card 1
+      end
+      after(:each) do
+        Timecop.return
+      end
+      it "places it in learning queue" do
+        expect(@s.queue).to eq "learn"
+      end
+      it "sets due to 5 min from now" do
+        expect(@s.due).to eq (Time.now + 5.minute).to_i
+      end
+      it "sets learning step to lapse_starting_step" do
+        expect(@s.learning_step).to eq 2
+      end
+      it "increase reps" do
+        expect(@s.reps).to eq 8
+      end
+      it "interval is 1" do
+        expect(@s.interval).to eq 1
+      end
+      it "lapsed is true" do
+        expect(@s.lapsed).to eq true
+      end
+      it "ef is decreased by 0.2" do
+        expect(@s.ef).to eq 2.0
+      end
+    end
 
+    context "with 2" do
+      before(:each) do
+        Timecop.freeze
+        @s = FactoryBot.create :schedule, queue: :review, reps: 7, due: (Time.now-3.minutes).to_i, ef:2.2, interval:5, konfig_args:{lapse_starting_step: 2, grad_steps:"3 5 7"}
+        @s.answer_card 2
+      end
+      after(:each) do
+        Timecop.return
+      end
+      it "places it in review queue" do
+        expect(@s.queue).to eq "review"
+      end
+      it "sets due to 6 days from now" do
+        expect(@s.due).to eq (Time.now + 6.days).to_i
+      end
+      it "learning step still nil" do
+        expect(@s.learning_step).to eq nil
+      end
+      it "increase reps" do
+        expect(@s.reps).to eq 8
+      end
+      it "interval is 5*1.2 = 6" do
+        expect(@s.interval).to eq 6
+      end
+      it "lapsed is false" do
+        expect(@s.lapsed).to eq false
+      end
+      it "ef is decreased by 0.15" do
+        expect(@s.ef).to eq 2.05
+      end
+    end
+
+    context "with 3" do
+      before(:each) do
+        Timecop.freeze
+        @s = FactoryBot.create :schedule, queue: :review, reps: 7, due: (Time.now-3.minutes).to_i, ef:2.2, interval:5, konfig_args:{lapse_starting_step: 2, grad_steps:"3 5 7"}
+        @s.answer_card 3
+      end
+      after(:each) do
+        Timecop.return
+      end
+      it "places it in review queue" do
+        expect(@s.queue).to eq "review"
+      end
+      it "sets due to 11 days from now" do
+        expect(@s.due).to eq (Time.now + 11.days).to_i
+      end
+      it "learning step still nil" do
+        expect(@s.learning_step).to eq nil
+      end
+      it "increase reps" do
+        expect(@s.reps).to eq 8
+      end
+      it "interval is 5*2.2 = 11" do
+        expect(@s.interval).to eq 11
+      end
+      it "lapsed is false" do
+        expect(@s.lapsed).to eq false
+      end
+      it "ef is unchanged" do
+        expect(@s.ef).to eq 2.2
+      end
+    end
+
+    context "with 4" do
+      before(:each) do
+        Timecop.freeze
+        @s = FactoryBot.create :schedule, queue: :review, reps: 7, due: (Time.now-3.minutes).to_i, ef:2.2, interval:5, konfig_args:{lapse_starting_step: 2, grad_steps:"3 5 7"}
+        @s.answer_card 4
+      end
+      after(:each) do
+        Timecop.return
+      end
+      it "places it in review queue" do
+        expect(@s.queue).to eq "review"
+      end
+      it "sets due to 11 days from now" do
+        expect(@s.due).to eq (Time.now + 11.days).to_i
+      end
+      it "learning step still nil" do
+        expect(@s.learning_step).to eq nil
+      end
+      it "increase reps" do
+        expect(@s.reps).to eq 8
+      end
+      it "interval is 5*2.2 = 11" do
+        expect(@s.interval).to eq 11
+      end
+      it "lapsed is false" do
+        expect(@s.lapsed).to eq false
+      end
+      it "ef is increased" do
+        expect(@s.ef).to eq 2.35
+      end
+    end
+
+    it "EF can't fall below 1.3" do
+      @a = FactoryBot.create :schedule, queue: :review, reps: 7, due: (Time.now-3.minutes).to_i, ef:1.35, interval:5, konfig_args:{lapse_starting_step: 2, grad_steps:"3 5 7"}
+      @b = FactoryBot.create :schedule, queue: :review, reps: 7, due: (Time.now-3.minutes).to_i, ef:1.35, interval:5, konfig_args:{lapse_starting_step: 2, grad_steps:"3 5 7"}
+      @a.answer_card(1)
+      @b.answer_card(2)
+      expect(@a.ef).to eq 1.3
+      expect(@b.ef).to eq 1.3
+    end
   end
 end
+

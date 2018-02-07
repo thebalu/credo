@@ -8,4 +8,8 @@ class Konfig < ApplicationRecord
   def same_klass_for_deck_and_student
     errors.add(:klass, "must be the same for deck and student") unless deck.klass == student.klass
   end
+
+  before_save do
+    self.lapse_starting_step ||=starting_step
+  end
 end
