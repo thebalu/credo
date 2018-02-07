@@ -5,4 +5,7 @@ class Student < ApplicationRecord
 
   validates :name, presence: :true
 
+  def decks
+    klass.decks
+  end
 end

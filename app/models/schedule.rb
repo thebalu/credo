@@ -12,9 +12,11 @@ class Schedule < ApplicationRecord
   # todo conditional validations: eg. learning_step must be nil unless card is in learn queue
   validates :reps, presence: :true, numericality: [greater_than_or_equal_to: 0]
   validates :interval, presence: :true, numericality: [greater_than_or_equal_to: 0]
+
   validate :same_klass_for_card_and_student
 
   def same_klass_for_card_and_student
+    return unless errors.blank?
     errors.add(:klass, "must be the same for card and student") unless card.deck.klass == student.klass
   end
 
@@ -37,8 +39,7 @@ class Schedule < ApplicationRecord
   # Scopes
   # #
   scope :due_review, -> {where("due <= ?", Time.now.end_of_day.to_i)}
-  scope :learning,   -> {where(queue: "learn")}
-  scope :unseen,     -> {where(queue: "unseen")}
+
   scope :of_deck,    ->(deck) {Schedule.joins(:card).where(cards:{deck:deck})}
 
   # The big stuff

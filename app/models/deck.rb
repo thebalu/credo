@@ -4,4 +4,8 @@ class Deck < ApplicationRecord
   has_many :konfigs, dependent: :destroy
 
   validates :name, presence: :true
+
+  def students
+    klass.students
+  end
 end
