@@ -9,9 +9,12 @@ class Card < ApplicationRecord
     deck.students
   end
 
-  after_save do # if this fails, the original gets rolled back too
+  after_create do # if this fails, the original gets rolled back too
     students.each do |student|
-      Schedule.create!(card:self, student:student)
+      Schedule.find_or_create_by!(card:self, student:student)
     end
+  end
+  after_update do # if this fails, the original gets rolled back too
+    raise "What should we do after update??"
   end
 end

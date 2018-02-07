@@ -8,4 +8,10 @@ class Deck < ApplicationRecord
   def students
     klass.students
   end
+
+  after_create do # Create a default konfig
+    students.each do |student|
+      Konfig.create!(student:student, deck:self)
+    end
+  end
 end
