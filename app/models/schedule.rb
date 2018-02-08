@@ -153,16 +153,17 @@ class Schedule < ApplicationRecord
     self.due = (Time.now + grad_steps[learning_step - 1].minutes)
   end
 
-  # Getting cards
-  def self.unseen_count(deck,student)
-    Schedule.of_deck(deck).where(student:student).unseen.count
-  end
-  def self.learn_count(deck,student)
-    Schedule.of_deck(deck).where(student:student).learn.count
-  end
-  def self.review_count(deck,student)
-    Schedule.of_deck(deck).where(student:student).review.count
-  end
+  # Getting cards - this is now done in Konfig
+  #
+  # def self.unseen_count(deck,student)
+  #   Schedule.of_deck(deck).where(student:student).unseen.count
+  # end
+  # def self.learn_count(deck,student)
+  #   Schedule.of_deck(deck).where(student:student).learn.count
+  # end
+  # def self.review_count(deck,student)
+  #   Schedule.of_deck(deck).where(student:student).review.count
+  # end
 
 
 end

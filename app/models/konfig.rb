@@ -13,6 +13,30 @@ class Konfig < ApplicationRecord
     self.lapse_starting_step ||=starting_step
   end
 
+
+  # Tasks to do on a new day
+  def reset_day
+    self.day_cutoff = Time.now.end_of_day.to_i
+    self.reps=0
+    self.unseen_count = set_unseen_count
+    self.learn_count = set_learn_count
+    self.review_count = schedules.due_review.count
+    self.save
+  end
+
+  def set_unseen_count
+    total = schedules.unseen.count
+    [total, new_limit].min
+  end
+
+  def set_learn_count
+    steps=grad_steps.split.count
+    schedules.learn.map{|s| steps-s.learning_step+1}.sum
+  end
+
+  def counts
+    {unseen:unseen_count, learn: learn_count, review: review_count}
+  end
   # A konfig belongs to Deck+Student, so this model will be used to get the next due card and
   # for various counts.
 
