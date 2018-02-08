@@ -65,6 +65,9 @@ class Schedule < ApplicationRecord
       # Place unseen cards into learn queue and do the necessary setup
       self.queue = :learn
       self.learning_step = konfig[:starting_step]
+      # Was unseen, now learn with all-starting+1 reps left
+      konfig.unseen_count -= 1
+      konfig.learn_count += grad_steps.count - learning_step + 1# eg with '1 10', the card will be shown 2 - 1 + 1 = 2 times
     end
 
     if queue == "learn"
@@ -80,18 +83,20 @@ class Schedule < ApplicationRecord
   # Cards in learning phase have 3 options: { 0: again, 1: ok, 2: easy}
   def answer_learn_card(grade)
     if grade == 3 # Instantly graduate
-      konfig.learn_count -= grad_steps.count - learning_step
+      konfig.learn_count -= grad_steps.count - learning_step + 1 # take away all the steps
       reschedule_as_review(true)
     elsif grade == 2 && learning_step >= grad_steps.count # All learning steps complete, graduate
+      konfig.learn_count -= 1
       reschedule_as_review(false)
     else
       # No graduation yet
       if grade == 2 # 1 step closer to grad
         self.learning_step += 1
+        konfig.learn_count -= 1
       elsif grade == 1 # Fail, back to step 1
         # possibly adjust interval if card is lapsed
         self.learning_step = 1
-        konfig.learn_count += grad_steps.count
+        konfig.learn_count += -1 + grad_steps.count # decrease by 1 because of the answer, and add it back steps times
       else
         raise "Learning cards must be answered on a scale of 1-3"
       end

@@ -12,11 +12,13 @@ class Konfig < ApplicationRecord
 
   before_create do
     self.lapse_starting_step ||= starting_step
+    self.day_cutoff ||= Time.now.end_of_day.to_i
+
   end
 
   before_save do
     recalculate_counts
-    self.new_card_frequency = (unseen_count + review_count) / new_count if unseen_count > 0
+    self.new_card_frequency = (unseen_count + review_count) / unseen_count if unseen_count > 0
     self.new_card_frequency = [new_card_frequency, 2].max if review_count > 0
   end
 
@@ -57,43 +59,42 @@ class Konfig < ApplicationRecord
   end
 
   def get_learn_card # Returns first due learn card, or nil
-    self.learn_count -= 1
     s = schedules.learn.first
-    return (
-    if s&.show_now? then
+
+    if s&.show_now?
+      # self.learn_count -= 1
       s
     else
       nil
-    end)
+    end
   end
 
   def get_unseen_card # Returns an unseen card, or nil if there are none
     s = schedules.unseen.order(:created_at).limit(self.unseen_count).first
-    self.unseen_count -= 1
+    # self.unseen_count -= 1 if s
     return s
   end
 
   def get_review_card # Returns first review card that's due today, or nil
-    self.review_count -= 1
     s = schedules.review.first
-    return (
-    if s&.show_now? then
+    if s&.show_now?
+      # self.review_count -= 1
       s
     else
       nil
-    end)
+    end
   end
 
   def get_future_learn_card # If there are any learn cards left, returns the first
-    self.learn_count -= 1
     s = schedules.learn.first
+    # self.learn_count -= 1 if s
     return s
   end
 
   def get_card # Returns the schedule information of the next card
 
     reset_day if Time.now.to_i > day_cutoff
-
+    self.reps+=1
     # dueLearn > Unseen/Review > futureLearn > Unseen
     c = get_learn_card
     return c if c
