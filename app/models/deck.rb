@@ -14,4 +14,5 @@ class Deck < ApplicationRecord
       Konfig.create!(student:student, deck:self)
     end
   end
+
 end

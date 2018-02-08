@@ -20,6 +20,10 @@ class Schedule < ApplicationRecord
     errors.add(:klass, "must be the same for card and student") unless card.deck.klass == student.klass
   end
 
+  # Scopes
+  scope :learn, -> { where(queue:"learn").order(:due)} # override to order by due
+  scope :review, ->{ where(queue:"review").order(:due)} # override to order by due
+
   # Simple definitions
   # #
   def deck
@@ -34,6 +38,14 @@ class Schedule < ApplicationRecord
 
   def grad_steps
     konfig[:grad_steps].split.map(&:to_i)
+  end
+
+  def show_now?
+    if queue=="review"
+      return (due <= Time.now.end_of_day.to_i)
+    elsif queue=="learn"
+      return (due <= Time.now.to_i)
+    end
   end
 
   # Scopes
@@ -140,7 +152,17 @@ class Schedule < ApplicationRecord
     self.learning_step = konfig[:lapse_starting_step] # possibly add a different relearning starting step
     self.due = (Time.now + grad_steps[learning_step - 1].minutes)
   end
-end
 
-# a=Schedule.create(card:Card.take, student:Student.take)
-# TODO Testing model, writing tests, adding save to persist to db
+  # Getting cards
+  def self.unseen_count(deck,student)
+    Schedule.of_deck(deck).where(student:student).unseen.count
+  end
+  def self.learn_count(deck,student)
+    Schedule.of_deck(deck).where(student:student).learn.count
+  end
+  def self.review_count(deck,student)
+    Schedule.of_deck(deck).where(student:student).review.count
+  end
+
+
+end
