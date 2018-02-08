@@ -35,6 +35,7 @@ class Konfig < ApplicationRecord
   end
 
   def counts
+    reset_day if Time.now.to_i > day_cutoff
     {unseen:unseen_count, learn: learn_count, review: review_count}
   end
   # A konfig belongs to Deck+Student, so this model will be used to get the next due card and
@@ -45,27 +46,34 @@ class Konfig < ApplicationRecord
   end
 
   def get_learn_card # Returns first due learn card, or nil
+    self.learn_count -= 1
     s=schedules.learn.first
     return (if s&.show_now? then s else nil end)
   end
 
   def get_unseen_card # Returns an unseen card, or nil if there are none
     # todo add limit
+    self.unseen_count -= 1
     s=schedules.unseen.order(:created_at).first
     return s
   end
 
   def get_review_card # Returns first review card that's due today, or nil
+    self.review_count-= 1
     s=schedules.review.first
     return (if s&.show_now? then s else nil end)
   end
 
   def get_future_learn_card # If there are any learn cards left, returns the first
+    self.learn_count -= 1
     s=schedules.learn.first
     return s
   end
 
   def get_card # Returns the schedule information of the next card
+
+    reset_day if Time.now.to_i > day_cutoff
+
     # dueLearn > Unseen/Review > futureLearn > Unseen
     c=get_learn_card
     return c if c
@@ -86,6 +94,7 @@ class Konfig < ApplicationRecord
 
     return nil
   end
+
 
   def time_for_unseen
     return false if schedules.unseen.count==0

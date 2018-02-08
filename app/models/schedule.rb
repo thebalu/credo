@@ -79,6 +79,7 @@ class Schedule < ApplicationRecord
   # Cards in learning phase have 3 options: { 0: again, 1: ok, 2: easy}
   def answer_learn_card(grade)
     if grade == 3 # Instantly graduate
+      konfig.learn_count -= grad_steps.count - learning_step
       reschedule_as_review(true)
     elsif grade == 2 && learning_step >= grad_steps.count # All learning steps complete, graduate
       reschedule_as_review(false)
@@ -89,6 +90,7 @@ class Schedule < ApplicationRecord
       elsif grade == 1 # Fail, back to step 1
         # possibly adjust interval if card is lapsed
         self.learning_step = 1
+        konfig.learn_count += grad_steps.count
       else
         raise "Learning cards must be answered on a scale of 1-3"
       end
@@ -151,6 +153,8 @@ class Schedule < ApplicationRecord
 
     self.learning_step = konfig[:lapse_starting_step] # possibly add a different relearning starting step
     self.due = (Time.now + grad_steps[learning_step - 1].minutes)
+
+    konfig.learn_count += grad_steps.count - konfig.lapse_starting_step + 1
   end
 
   # Getting cards - this is now done in Konfig
