@@ -25,6 +25,11 @@ d.cards.create([
     {front: "3", back: "tres"},
     {front: "4", back: "cuatro"},
     {front: "5", back: "cinco"},
+    {front: "6", back: "seis"},
+    {front: "7", back: "siete"},
+    {front: "8", back: "ocho"},
+    {front: "9", back: "nueve"},
+    {front: "10", back: "diez"},
                ])
 
 

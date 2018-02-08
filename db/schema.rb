@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180208174220) do
+ActiveRecord::Schema.define(version: 20180208194653) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -53,6 +53,7 @@ ActiveRecord::Schema.define(version: 20180208174220) do
     t.integer  "review_count",        default: 0
     t.integer  "unseen_modulus",      default: 0
     t.integer  "new_limit",           default: 20
+    t.integer  "new_card_frequency"
   end
 
   create_table "schedules", force: :cascade do |t|

@@ -60,6 +60,7 @@ class Schedule < ApplicationRecord
   # Called when any card gets answered. Calls the correct answer_*_card method after preparations
   def answer_card(grade)
     self.reps += 1
+    konfig.reps += 1 # reps today
     if queue == "unseen"
       # Place unseen cards into learn queue and do the necessary setup
       self.queue = :learn
