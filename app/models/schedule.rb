@@ -17,12 +17,13 @@ class Schedule < ApplicationRecord
 
   def same_klass_for_card_and_student
     return unless errors.blank?
+
     errors.add(:klass, "must be the same for card and student") unless card.deck.klass == student.klass
   end
 
   # Scopes
-  scope :learn, -> { where(queue:"learn").order(:due)} # override to order by due
-  scope :review, ->{ where(queue:"review").order(:due)} # override to order by due
+  scope :learn, -> {where(queue: "learn").order(:due)} # override to order by due
+  scope :review, -> {where(queue: "review").order(:due)} # override to order by due
 
   # Simple definitions
   # #
@@ -41,18 +42,18 @@ class Schedule < ApplicationRecord
   end
 
   def show_now?
-    if queue=="review"
+    if queue == "review"
       return (due <= Time.now.end_of_day.to_i)
-    elsif queue=="learn"
+    elsif queue == "learn"
       return (due <= Time.now.to_i)
     end
   end
 
   # Scopes
   # #
-  scope :due_review, -> {where("due <= ?", Time.now.end_of_day.to_i)}
+  scope :due_review, -> {review.where("due <= ?", Time.now.end_of_day.to_i)}
 
-  scope :of_deck,    ->(deck) {Schedule.joins(:card).where(cards:{deck:deck})}
+  scope :of_deck, ->(deck) {Schedule.joins(:card).where(cards: {deck: deck})}
 
   # The big stuff
   # #
@@ -60,16 +61,17 @@ class Schedule < ApplicationRecord
   # Called when any card gets answered. Calls the correct answer_*_card method after preparations
   def answer_card(grade)
     self.reps += 1
-    konfig.reps += 1 # reps today
+    konf = konfig
+    konf.reps += 1 # reps today
     if queue == "unseen"
       # Place unseen cards into learn queue and do the necessary setup
       self.queue = :learn
-      self.learning_step = konfig[:starting_step]
+      self.learning_step = konf[:starting_step] - 1 # Because the card will be graded once without showing
       # Was unseen, now learn with all-starting+1 reps left
-      konfig.unseen_count -= 1
-      konfig.learn_count += grad_steps.count - learning_step + 1# eg with '1 10', the card will be shown 2 - 1 + 1 = 2 times
+      konf.unseen_count -= 1
+      konf.learn_count += grad_steps.count - learning_step # eg with '1 10', the card will be shown 2 - 0  = 2 times
     end
-
+    konf.save!
     if queue == "learn"
       answer_learn_card(grade)
     elsif queue == "review"
@@ -77,33 +79,38 @@ class Schedule < ApplicationRecord
     else
       raise "Unknown queue #{queue}"
     end
+
     save!
   end
 
   # Cards in learning phase have 3 options: { 0: again, 1: ok, 2: easy}
   def answer_learn_card(grade)
+    konf = konfig
     if grade == 3 # Instantly graduate
-      konfig.learn_count -= grad_steps.count - learning_step + 1 # take away all the steps
+
+      konf.learn_count -= (grad_steps.count - learning_step) # take away all the steps
       reschedule_as_review(true)
-    elsif grade == 2 && learning_step >= grad_steps.count # All learning steps complete, graduate
-      konfig.learn_count -= 1
+    elsif grade == 2 && learning_step+1 >= grad_steps.count # All learning steps complete, graduate
+      konf.learn_count -= 1
       reschedule_as_review(false)
     else
       # No graduation yet
       if grade == 2 # 1 step closer to grad
         self.learning_step += 1
-        konfig.learn_count -= 1
+        konf.learn_count -= 1
       elsif grade == 1 # Fail, back to step 1
         # possibly adjust interval if card is lapsed
-        self.learning_step = 1
-        konfig.learn_count += -1 + grad_steps.count # decrease by 1 because of the answer, and add it back steps times
+        konf.learn_count += learning_step  # the difference of the old and new learning step
+
+        self.learning_step = 0
       else
         raise "Learning cards must be answered on a scale of 1-3"
       end
-      delay = (grad_steps[learning_step - 1] * 60) #*(Random.rand(0.25)+1) Add this fuzz later
+      delay = (grad_steps[learning_step] * 60) #*(Random.rand(0.25)+1) Add this fuzz later
       self.due = Time.now.to_i + delay.round
       delay.round
     end
+    konf.save!
 
   end
 
@@ -157,10 +164,11 @@ class Schedule < ApplicationRecord
     self.queue = "learn"
     self.lapsed = true
 
-    self.learning_step = konfig[:lapse_starting_step] # possibly add a different relearning starting step
+    konf = konfig
+    self.learning_step = konf[:lapse_starting_step] # possibly add a different relearning starting step
     self.due = (Time.now + grad_steps[learning_step - 1].minutes)
-
-    konfig.learn_count += grad_steps.count - konfig.lapse_starting_step + 1
+    konf.learn_count += grad_steps.count - konf.lapse_starting_step + 1
+    konf.save!
   end
 
   # Getting cards - this is now done in Konfig

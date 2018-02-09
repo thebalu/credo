@@ -7,6 +7,7 @@ class Konfig < ApplicationRecord
   validate :same_klass_for_deck_and_student
 
   def same_klass_for_deck_and_student
+
     errors.add(:klass, "must be the same for deck and student") unless deck.klass == student.klass
   end
 
@@ -17,7 +18,6 @@ class Konfig < ApplicationRecord
   end
 
   before_save do
-    recalculate_counts
     self.new_card_frequency = (unseen_count + review_count) / unseen_count if unseen_count > 0
     self.new_card_frequency = [new_card_frequency, 2].max if review_count > 0
   end
@@ -27,6 +27,7 @@ class Konfig < ApplicationRecord
   def reset_day
     self.day_cutoff = Time.now.end_of_day.to_i
     self.reps = 0
+    recalculate_counts
     self.save
   end
 
@@ -70,6 +71,7 @@ class Konfig < ApplicationRecord
   end
 
   def get_unseen_card # Returns an unseen card, or nil if there are none
+    return nil if self.unseen_count <= 0
     s = schedules.unseen.order(:created_at).limit(self.unseen_count).first
     # self.unseen_count -= 1 if s
     return s
@@ -94,7 +96,7 @@ class Konfig < ApplicationRecord
   def get_card # Returns the schedule information of the next card
 
     reset_day if Time.now.to_i > day_cutoff
-    self.reps+=1
+    # self.reps+=1
     # dueLearn > Unseen/Review > futureLearn > Unseen
     c = get_learn_card
     return c if c
