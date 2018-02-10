@@ -80,6 +80,7 @@ RSpec.describe Konfig, type: :model do
         q = card.queue
         step = card.learning_step
 
+
         card.answer_card(grade % 3 + 1)
         konf.reload
         puts "#{old_count} --#{grade % 3 + 1}--> #{konf.counts}"

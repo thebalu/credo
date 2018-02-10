@@ -2,7 +2,7 @@ class Konfig < ApplicationRecord
   belongs_to :deck
   belongs_to :student
 
-  validates :starting_step, numericality: [greater_than: 0]
+  validates :starting_step, numericality: [greater_than_or_equal_to: 0]
 
   validate :same_klass_for_deck_and_student
 

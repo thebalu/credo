@@ -24,6 +24,8 @@ class Schedule < ApplicationRecord
   # Scopes
   scope :learn, -> {where(queue: "learn").order(:due)} # override to order by due
   scope :review, -> {where(queue: "review").order(:due)} # override to order by due
+  scope :due_review, -> {review.where("due <= ?", Time.now.end_of_day.to_i)}
+  scope :of_deck, ->(deck) {Schedule.joins(:card).where(cards: {deck: deck})}
 
   # Simple definitions
   # #
@@ -49,11 +51,14 @@ class Schedule < ApplicationRecord
     end
   end
 
-  # Scopes
-  # #
-  scope :due_review, -> {review.where("due <= ?", Time.now.end_of_day.to_i)}
+  def as_json
+    {
+      front: card.front,
+      back: card.back,
+      schedule: self.attributes
+    }
+  end
 
-  scope :of_deck, ->(deck) {Schedule.joins(:card).where(cards: {deck: deck})}
 
   # The big stuff
   # #
@@ -90,7 +95,7 @@ class Schedule < ApplicationRecord
 
       konf.learn_count -= (grad_steps.count - learning_step) # take away all the steps
       reschedule_as_review(true)
-    elsif grade == 2 && learning_step+1 >= grad_steps.count # All learning steps complete, graduate
+    elsif grade == 2 && learning_step + 1 >= grad_steps.count # All learning steps complete, graduate
       konf.learn_count -= 1
       reschedule_as_review(false)
     else
@@ -100,7 +105,7 @@ class Schedule < ApplicationRecord
         konf.learn_count -= 1
       elsif grade == 1 # Fail, back to step 1
         # possibly adjust interval if card is lapsed
-        konf.learn_count += learning_step  # the difference of the old and new learning step
+        konf.learn_count += learning_step # the difference of the old and new learning step
 
         self.learning_step = 0
       else

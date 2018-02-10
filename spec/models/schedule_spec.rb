@@ -262,6 +262,13 @@ RSpec.describe Schedule, type: :model do
       it "ef is 2.5" do
         expect(@s.ef).to eq 2.5
       end
+
+      it "shows up as a review card in 4 days" do
+        expect(Schedule.due_review.find_by(id:@s.id)).to eq nil
+        Timecop.return
+        Timecop.freeze(Time.now+1.days)
+        expect(Schedule.due_review.find_by(id:@s.id)).to eq @s
+      end
     end
 
     context "with 3" do
@@ -294,6 +301,13 @@ RSpec.describe Schedule, type: :model do
       end
       it "ef is 2.5" do
         expect(@s.ef).to eq 2.5
+      end
+
+      it "shows up as a review card in 4 days" do
+        expect(Schedule.due_review.find_by(id:@s.id)).to eq nil
+        Timecop.return
+        Timecop.freeze(Time.now+4.days)
+        expect(Schedule.due_review.find_by(id:@s.id)).to eq @s
       end
     end
   end
