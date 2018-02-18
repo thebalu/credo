@@ -1,0 +1,33 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Show card</h1>
+
+<p><strong>front: </strong> <%= @card.front %></p>
+<p><strong>back: </strong> <%= @card.back%></p>
+<p><strong>created: </strong> <%= @card.created_at%></p>
+
+
+<table>
+  <tr>
+    <th>id</th>
+    <th>student</th>
+    <th>queue</th>
+    <th>reps</th>
+    <th>interval</th>
+    <th>due</th>
+    <th>ef</th>
+  </tr>
+<% @card.schedules.each  do |schedule| %>
+  <tr>
+  <td><%= schedule.id %>  </td>
+  <td><%= schedule.student.name %>  </td>
+  <td><%= schedule.queue %>  </td>
+  <td><%= schedule.reps %>  </td>
+  <td><%= schedule.interval %>  </td>
+  <td><%= schedule.due %>  </td>
+  <td><%= schedule.ef %>  </td>
+  </tr>
+<% end %>
+</table>
+<%= link_to 'Edit', edit_card_path(@card) %> |
+<%= link_to 'Back', cards_path %>

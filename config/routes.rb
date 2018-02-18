@@ -3,4 +3,6 @@ Rails.application.routes.draw do
   get '/api/review/get_card', to: 'reviews#get_card'
 
   post '/api/review/answer_card', to: 'reviews#answer_card'
+
+  resources :cards
 end
