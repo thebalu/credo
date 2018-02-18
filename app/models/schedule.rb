@@ -59,6 +59,12 @@ class Schedule < ApplicationRecord
     }
   end
 
+  def number_of_buttons
+    return 2 if lapsed
+    return 3 if learn? || unseen?
+    return 4 if review?
+  end
+
 
   # The big stuff
   # #
