@@ -1,0 +1,25 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Konfigs</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @konfigs.each do |konfig| %>
+      <tr>
+        <td><%= link_to 'Show', konfig %></td>
+        <td><%= link_to 'Edit', edit_konfig_path(konfig) %></td>
+        <td><%= link_to 'Destroy', konfig, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Konfig', new_konfig_path %>

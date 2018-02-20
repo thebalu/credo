@@ -8,4 +8,5 @@ Rails.application.routes.draw do
   resources :cards
   resources :students
   resources :klasses
+  resources :konfigs
 end

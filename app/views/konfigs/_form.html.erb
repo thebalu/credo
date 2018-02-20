@@ -1,0 +1,35 @@
+<%= form_for(konfig) do |f| %>
+  <% if konfig.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(konfig.errors.count, "error") %> prohibited this konfig from being saved:</h2>
+
+      <ul>
+      <% konfig.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%=	 f.label :deck_id %><%=	f.number_field :deck_id  %>
+  </div>
+  <div class="field">
+    <%=	 f.label :student_id %><%=	f.number_field :student_id  %>
+  </div>
+  <div class="field">
+    <%=	 f.label :grad_steps %><%=	f.text_field :grad_steps  %>
+  </div>
+  <div class="field">
+    <%=	 f.label :starting_step %><%=	f.number_field :starting_step  %>
+  </div>
+  <div class="field">
+    <%=	 f.label :lapse_starting_step %><%=	f.number_field :lapse_starting_step  %>
+  </div>
+  <div class="field">
+    <%=	 f.label :new_limit %><%=	f.number_field :new_limit  %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>
