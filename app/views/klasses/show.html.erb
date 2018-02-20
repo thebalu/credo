@@ -1,0 +1,41 @@
+<p id="notice"><%= notice %></p>
+<h1>Show klass</h1>
+
+<p><strong>name: </strong> <%= @klass.name %></p>
+<p><strong>desc: </strong> <%= @klass.description %></p>
+<p><strong>created: </strong> <%= @klass.created_at %></p>
+
+<table>
+  <tr>
+    <th>id</th>
+    <th>name</th>
+
+  </tr>
+  <% @klass.students.each do |student| %>
+    <tr>
+      <td><%= student.id %>  </td>
+      <td><%= student.name%>  </td>
+      <td><%= link_to 'show',student %></td>
+    </tr>
+  <% end %>
+</table>
+
+
+<table>
+  <tr>
+    <th>id</th>
+    <th>name</th>
+    <th>description</th>
+
+  </tr>
+  <% @klass.decks.each do |deck| %>
+    <tr>
+      <td><%= deck.id %>  </td>
+      <td><%= deck.name%>  </td>
+      <td><%= deck.description%>  </td>
+      <td><%= link_to 'show',deck %></td>
+    </tr>
+  <% end %>
+</table>
+<%= link_to 'Edit', edit_klass_path(@klass) %> |
+<%= link_to 'Back', klasses_path %>

@@ -7,4 +7,5 @@ Rails.application.routes.draw do
   resources :decks
   resources :cards
   resources :students
+  resources :klasses
 end
