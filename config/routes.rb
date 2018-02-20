@@ -4,5 +4,6 @@ Rails.application.routes.draw do
 
   post '/api/review/answer_card', to: 'reviews#answer_card'
 
+  resources :decks
   resources :cards
 end

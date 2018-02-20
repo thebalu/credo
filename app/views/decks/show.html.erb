@@ -1,0 +1,30 @@
+<p id="notice"><%= notice %></p>
+<h1>Show deck</h1>
+
+<p><strong>name: </strong> <%= @deck.name %></p>
+<p><strong>desc: </strong> <%= @deck.description %></p>
+<p><strong>created: </strong> <%= @deck.created_at %></p>
+
+
+<table>
+  <tr>
+    <th>id</th>
+    <th>front</th>
+    <th>back</th>
+    <th>created</th>
+    <th>show</th>
+
+  </tr>
+  <% @deck.cards.each do |card| %>
+    <tr>
+      <td><%= card.id %>  </td>
+      <td><%= card.front %>  </td>
+      <td><%= card.back %>  </td>
+      <td><%= card.created_at %></td>
+      <td><%= link_to 'show',card %></td>
+
+    </tr>
+  <% end %>
+</table>
+<%= link_to 'Edit', edit_deck_path(@deck) %> |
+<%= link_to 'Back', decks_path %>
